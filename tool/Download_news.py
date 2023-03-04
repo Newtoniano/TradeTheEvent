@@ -1,11 +1,16 @@
 from pymongo import MongoClient
-
+from dotenv import load_dotenv
 import sys
-sys.path.append('../')
+import os
+
+sys.path.append("../")
 from utils.tool import download_article, download_article_seperate
 
-DB_NAME = "TTE"
-client = MongoClient('localhost', 27017)
+load_dotenv()
+
+MONGODB_CONNECTION_STRING = os.getenv("MONGODB_CONNECTION_STRING")
+DB_NAME = "tradetheevent"
+client = MongoClient(MONGODB_CONNECTION_STRING)
 db = client[DB_NAME]
 collection_news = db["news"]
 
@@ -19,10 +24,10 @@ for i, item in enumerate(url_to_download):
     if i > 0 and i % 20 == 0:
         print("Successfully downloading {} news".format(i))
 
-    title, text, pub_time = download_article_seperate(item['url'])
-    item['title'] = title
-    item['text'] = text
-    item['pub_time'] = pub_time
+    title, text, pub_time = download_article_seperate(item["url"])
+    item["title"] = title
+    item["text"] = text
+    item["pub_time"] = pub_time
 
     condition = {"_id": item["_id"]}
     collection_news.replace_one(condition, item)
